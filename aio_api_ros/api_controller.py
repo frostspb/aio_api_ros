@@ -8,7 +8,8 @@ import binascii
 #TODO add tests
 
 class ApiRosController:
-    def __init__(self, mk_ip: str, mk_port: int, mk_user: str, mk_psw: str ):
+    def __init__(self, mk_ip: str, mk_port: int, mk_user: str, mk_psw: str,
+                 loop=None):
         if not all([mk_ip, mk_port, mk_user, mk_psw]):
             raise RuntimeError('Wrong connection params!')
         self.ip = mk_ip
@@ -17,10 +18,11 @@ class ApiRosController:
         self.password = mk_psw
         self.writer = None
         self.reader = None
+        self._loop = loop
 
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(
-            self.ip, self.port
+            self.ip, self.port, loop=self._loop
         )
 
     def __del__(self):
