@@ -12,7 +12,8 @@ setup(
     license='MIT',
     author='Frostspb',
     description='async implementation Mikrotik api',
-    long_description="""Only Python 3.5+""",
+    long_description="""async implementation Mikrotik api
+    Only Python 3.5+""",
     keywords=["mikrotik", "asyncio", "apiRos"],
     classifiers=[
         "Development Status :: 3 - Alpha",
