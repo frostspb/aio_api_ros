@@ -1,6 +1,7 @@
+import aio_api_ros
 from distutils.core import setup
 from setuptools import find_packages
-import aio_api_ros
+
 VERSION = aio_api_ros.version
 
 setup(
@@ -16,6 +17,8 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     install_requires=[
 

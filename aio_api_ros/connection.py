@@ -1,13 +1,13 @@
 import asyncio
 import hashlib
 import binascii
+import uuid
 
-#TODO Add docstring try catch validation
-#todo parse response mk for success or fail
-# TODO add connections pool
-#TODO add tests
 
-class ApiRosController:
+class ApiRosConnection:
+    """
+    Connection to Mikrotik api
+    """
     def __init__(self, mk_ip: str, mk_port: int, mk_user: str, mk_psw: str,
                  loop=None):
         if not all([mk_ip, mk_port, mk_user, mk_psw]):
@@ -19,40 +19,82 @@ class ApiRosController:
         self.writer = None
         self.reader = None
         self._loop = loop
+        self._uuid = uuid.uuid1()
+        self.used = False
+
+    def __del__(self):
+        self.close()
+
+    def __repr__(self):
+        return 'Connection to %s:%s id=%s' % (self.ip, self.port, self.uuid)
 
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(
             self.ip, self.port, loop=self._loop
         )
 
-    def __del__(self):
-        self.close()
+    @property
+    def uuid(self):
+        """
+        uuid of connection
+        :return: str
+        """
+        return self._uuid
 
     @staticmethod
-    def to_bytes(str_value: str):
+    def _to_bytes(str_value: str):
+        """
+        Convert string to bytes
+        :param str_value: str
+        :return: bytes
+        """
         length = (len(str_value).bit_length() // 8) + 1
         res = len(str_value).to_bytes(length, byteorder='little')
         return res
 
-    def talk_end(self):
-        self.writer.write(self.to_bytes(''))
+    def _talk_end(self):
+        """
+        Send EOC (end of command) to mikrotik api
+        :return:
+        """
+        self.writer.write(self._to_bytes(''))
         self.writer.write(''.encode())
 
     def talk_word(self, str_value: str, send_end=True):
-        self.writer.write(self.to_bytes(str_value))
+        """
+        Send word to mikrotik
+        :param str_value: command
+        :param send_end: bool Flag - send end after this command
+        :return:
+        """
+        self.writer.write(self._to_bytes(str_value))
         self.writer.write(str_value.encode())
         if send_end:
-            self.talk_end()
+            self._talk_end()
 
     def talk_sentence(self, sentence: list):
+        """
+        Send list of commands
+        :param sentence: Send list of commands
+        :return:
+        """
         for word in sentence:
             self.talk_word(word, False)
-        self.talk_end()
+        self._talk_end()
 
     def close(self):
+        """
+        Close connection
+        :return:
+        """
         self.writer.close()
 
-    def get_login_sentence(self, challenge_arg):
+    def _get_login_sentence(self, challenge_arg):
+        """
+        Perform login sentence  with challenge argument
+        :param challenge_arg:
+        :return:
+        """
         md = hashlib.md5()
         md.update(b'\x00')
         md.update(self.password.encode('UTF-8'))
@@ -67,7 +109,12 @@ class ApiRosController:
         ]
 
     @staticmethod
-    def get_challenge_arg(data):
+    def _get_challenge_arg(data):
+        """
+        Parse from mikrotik response challenge argument
+        :param data:
+        :return:
+        """
         response_str = data.decode('UTF-8', 'replace')
         res_list = response_str.split('!done')
         str_val = res_list[1]
@@ -75,13 +122,25 @@ class ApiRosController:
         res = str(res_list[1])
         return res
 
+    async def read(self, length=128):
+        """
+        Read response from api
+        :param length:
+        :return:
+        """
+        return await self.reader.read(length)
+
     async def login(self):
+        """
+        Login to api
+        :return:
+        """
         self.talk_word(r'/login')
         await self.writer.drain()
         data = await self.reader.read(64)
 
-        challenge_arg = self.get_challenge_arg(data)
-        login_sentence = self.get_login_sentence(challenge_arg)
+        challenge_arg = self._get_challenge_arg(data)
+        login_sentence = self._get_login_sentence(challenge_arg)
         self.talk_sentence(login_sentence)
         await self.writer.drain()
         data = await self.reader.read(64)
@@ -90,6 +149,13 @@ class ApiRosController:
 
     async def login_client(self, client_ip: str, client_login: str,
                            client_psw: str):
+        """
+        Login client to mikrotik
+        :param client_ip:
+        :param client_login:
+        :param client_psw:
+        :return:
+        """
         sentence = [
             '/ip/hotspot/active/login',
             '=ip={}'.format(client_ip),
@@ -97,5 +163,5 @@ class ApiRosController:
             '=password={}'.format(client_psw),
         ]
         self.talk_sentence(sentence)
-        result = await self.reader.read(64)
+        result = await self.read()
         return result
