@@ -3,6 +3,10 @@ import hashlib
 import binascii
 import uuid
 
+from .errors import LoginFailed
+
+ERROR_TAG = '!trap'
+
 
 class ApiRosConnection:
     """
@@ -109,6 +113,15 @@ class ApiRosConnection:
         ]
 
     @staticmethod
+    def _get_err_message(data):
+        """
+        Parse error message from mikrotik response
+        :param data:
+        :return:
+        """
+        return data.decode().split('=message=')[1].split('\x00')[0]
+
+    @staticmethod
     def _get_challenge_arg(data):
         """
         Parse from mikrotik response challenge argument
@@ -138,12 +151,14 @@ class ApiRosConnection:
         self.talk_word(r'/login')
         await self.writer.drain()
         data = await self.reader.read(64)
-
         challenge_arg = self._get_challenge_arg(data)
         login_sentence = self._get_login_sentence(challenge_arg)
         self.talk_sentence(login_sentence)
         await self.writer.drain()
         data = await self.reader.read(64)
+        # login failed
+        if ERROR_TAG in data.decode():
+            raise LoginFailed(self._get_err_message(data))
 
         return data
 
