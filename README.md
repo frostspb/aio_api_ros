@@ -39,11 +39,11 @@ if __name__ == '__main__':
 ```python
 
 import asyncio
-from aio_api_ros import create_rosapi_pool
+from aio_api_ros import create_rosapi_simple_pool
 
 async def main():
 
-    mk = await create_rosapi_pool(
+    mk = await create_rosapi_simple_pool(
         mk_ip='127.0.0.1',
         mk_port=8728,
         mk_user='myuser',

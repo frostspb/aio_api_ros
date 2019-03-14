@@ -135,6 +135,16 @@ class ApiRosConnection:
         res = str(res_list[1])
         return res
 
+    @staticmethod
+    def _get_result_dict(code: int, message: str) -> dict:
+        """
+        Return dict like {'code': 0, 'message': 'OK}
+        :param code:
+        :param message:
+        :return:
+        """
+        return {'code': code, 'message': message}
+
     async def read(self, length=128):
         """
         Read response from api
@@ -178,5 +188,12 @@ class ApiRosConnection:
             '=password={}'.format(client_psw),
         ]
         self.talk_sentence(sentence)
-        result = await self.read()
+        data = await self.read()
+
+        # login failed
+        if ERROR_TAG in data.decode():
+            result = self._get_result_dict(-1, self._get_err_message(data))
+
+        else:
+            result = self._get_result_dict(0, 'OK')
         return result
