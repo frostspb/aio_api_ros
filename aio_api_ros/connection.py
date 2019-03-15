@@ -157,9 +157,20 @@ class ApiRosConnection:
         :param length:
         :return:
         """
-        res = await self.reader.read(length)
-        if parse:
-            res = self._parse_sentence(res, full_answer)
+        byte_res = b''
+        list_res = []
+        while True:
+            data = await self.reader.read(length)
+            if parse:
+                parsed_data = self._parse_sentence(data, full_answer)
+                list_res += parsed_data
+            else:
+                byte_res += data
+
+            if '!done' in data.decode():
+                res = list_res if parse else byte_res
+                break
+
         return res
 
     @staticmethod
