@@ -7,6 +7,10 @@ async implementation Mikrotik api
 pip install aio_api_ros
 ```
 
+**Gitter**
+
+[Gitter room. If you have a question - welcome](https://gitter.im/aio_api_ros/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+
 **Example of usage**
 
 *Single connection*
