@@ -6,7 +6,7 @@ from .creators import create_rosapi_connection
 from .creators import create_rosapi_simple_pool
 
 
-version = '0.0.10'
+version = '0.0.11'
 
 __all__ = [
     'ApiRosConnection',
