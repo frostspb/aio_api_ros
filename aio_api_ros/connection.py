@@ -4,6 +4,7 @@ import binascii
 import uuid
 
 from .errors import LoginFailed
+from .errors import UnpackValueError
 from .unpacker import SentenceUnpacker
 from .parser import parse_sentence
 
@@ -160,12 +161,16 @@ class ApiRosConnection:
         byte_res = b''
         list_res = []
         while True:
+
             data = await self.reader.read(length)
             if parse:
-                parsed_data = self._parse_sentence(data, full_answer)
-                list_res += parsed_data
-            else:
-                byte_res += data
+                try:
+                    parsed_data = self._parse_sentence(data, full_answer)
+                    list_res += parsed_data
+                    byte_res += data
+
+                except UnpackValueError:
+                    parse = False
 
             if '!done' in data.decode():
                 res = list_res if parse else byte_res
