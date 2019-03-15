@@ -4,8 +4,11 @@ import binascii
 import uuid
 
 from .errors import LoginFailed
+from .unpacker import SentenceUnpacker
+from .parser import parse_sentence
 
 ERROR_TAG = '!trap'
+DEFAULT_READ_DATA_LEN = 4096
 
 
 class ApiRosConnection:
@@ -145,13 +148,29 @@ class ApiRosConnection:
         """
         return {'code': code, 'message': message}
 
-    async def read(self, length=128):
+    async def read(self, parse=True, full_answer=False,
+                   length=DEFAULT_READ_DATA_LEN):
         """
         Read response from api
+        :param parse:
+        :param full_answer:
         :param length:
         :return:
         """
-        return await self.reader.read(length)
+        res = await self.reader.read(length)
+        if parse:
+            res = self._parse_sentence(res, full_answer)
+        return res
+
+    @staticmethod
+    def _parse_sentence(data, full_answer=False):
+        unpacker = SentenceUnpacker()
+        unpacker.feed(data)
+        res = [
+            parse_sentence(sentence) if full_answer
+            else parse_sentence(sentence)[2] for sentence in unpacker
+        ]
+        return res
 
     async def login(self):
         """
