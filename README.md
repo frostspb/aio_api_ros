@@ -3,8 +3,8 @@
 [![Join the chat at https://gitter.im/aio_api_ros/community](https://badges.gitter.im/aio_api_ros/community.svg)](https://gitter.im/aio_api_ros/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![PyPI version](https://badge.fury.io/py/aio-api-ros.svg)](https://badge.fury.io/py/aio-api-ros)
 [![Downloads](https://pepy.tech/badge/aio-api-ros)](https://pepy.tech/project/aio-api-ros)
-[![star this repo](http://githubbadges.com/star.svg?user=frostspb&repo=aio_api_ros&style=flat)](https://github.com/boennemann/badges)
-[![fork this repo](http://githubbadges.com/fork.svg?user=frostspb&repo=aio_api_ros&style=flat)](https://github.com/boennemann/badges/fork)
+[![star this repo](http://githubbadges.com/star.svg?user=frostspb&repo=aio_api_ros&style=flat)](https://github.com/frostspb/aio_api_ros)
+[![fork this repo](http://githubbadges.com/fork.svg?user=frostspb&repo=aio_api_ros&style=flat)](https://github.com/frostspb/aio_api_ros/fork)
 
 async implementation Mikrotik api
 
