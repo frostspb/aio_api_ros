@@ -223,7 +223,7 @@ class ApiRosConnection:
             '=password={}'.format(client_psw),
         ]
         self.talk_sentence(sentence)
-        data = await self.read()
+        data = await self.read(parse=False)
 
         # login failed
         if ERROR_TAG in data.decode():
