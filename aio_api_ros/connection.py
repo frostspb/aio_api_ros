@@ -165,12 +165,15 @@ class ApiRosConnection:
             data = await self.reader.read(length)
             if parse:
                 try:
+
                     parsed_data = self._parse_sentence(data, full_answer)
                     list_res += parsed_data
                     byte_res += data
 
                 except UnpackValueError:
                     parse = False
+            else:
+                byte_res += data
 
             if '!done' in data.decode():
                 res = list_res if parse else byte_res
