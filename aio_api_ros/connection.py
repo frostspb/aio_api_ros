@@ -199,19 +199,24 @@ class ApiRosConnection:
         Login to api
         :return:
         """
-        self.talk_word(r'/login')
-        await self.writer.drain()
-        data = await self.reader.read(64)
-        challenge_arg = self._get_challenge_arg(data)
-        login_sentence = self._get_login_sentence(challenge_arg)
-        self.talk_sentence(login_sentence)
-        await self.writer.drain()
-        data = await self.reader.read(64)
-        # login failed
-        if ERROR_TAG in data.decode():
-            raise LoginFailed(self._get_err_message(data))
+        try:
+            self.talk_word(r'/login')
+            await self.writer.drain()
+            data = await self.reader.read(64)
+            challenge_arg = self._get_challenge_arg(data)
+            login_sentence = self._get_login_sentence(challenge_arg)
+            self.talk_sentence(login_sentence)
+            await self.writer.drain()
+            data = await self.reader.read(64)
 
-        return data
+            # login failed
+            if ERROR_TAG in data.decode():
+                raise LoginFailed(self._get_err_message(data))
+
+            return data
+
+        except ConnectionResetError:
+            raise LoginFailed('Connection reset by peer')
 
     async def login_client(self, client_ip: str, client_login: str,
                            client_psw: str):
