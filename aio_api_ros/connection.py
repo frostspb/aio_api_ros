@@ -132,11 +132,14 @@ class ApiRosConnection:
         :param data:
         :return:
         """
-        response_str = data.decode('UTF-8', 'replace')
-        res_list = response_str.split('!done')
-        str_val = res_list[1]
-        res_list = str_val.split('%=ret=')
-        res = str(res_list[1])
+        try:
+            response_str = data.decode('UTF-8', 'replace')
+            res_list = response_str.split('!done')
+            str_val = res_list[1]
+            res_list = str_val.split('%=ret=')
+            res = str(res_list[1])
+        except IndexError:
+            raise LoginFailed('Getting challenge argument failed')
         return res
 
     @staticmethod
