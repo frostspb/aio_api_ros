@@ -1,3 +1,8 @@
+"""
+This is an adapted code from this repository
+https://github.com/mrin/miktapi
+"""
+
 from .errors import ParseException
 
 

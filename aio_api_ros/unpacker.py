@@ -1,3 +1,7 @@
+"""
+This is an adapted code from this repository
+https://github.com/mrin/miktapi
+"""
 import struct
 
 from .errors import BufferFull
