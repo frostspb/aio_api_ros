@@ -97,23 +97,16 @@ class ApiRosConnection:
         """
         self.writer.close()
 
-    def _get_login_sentence(self, challenge_arg):
+    def _get_login_sentence(self):
         """
         Perform login sentence  with challenge argument
         :param challenge_arg:
         :return:
         """
-        md = hashlib.md5()
-        md.update(b'\x00')
-        md.update(self.password.encode('UTF-8'))
-
-        challenge = binascii.unhexlify(challenge_arg.replace('\x00', ''))
-
-        md.update(challenge)
         return [
             "/login",
             "=name=" + self.user,
-            "=response=00" + binascii.hexlify(md.digest()).decode('UTF-8')
+            "=password=" + self.password
         ]
 
     @staticmethod
@@ -202,9 +195,8 @@ class ApiRosConnection:
         try:
             self.talk_word(r'/login')
             await self.writer.drain()
-            data = await self.reader.read(64)
-            challenge_arg = self._get_challenge_arg(data)
-            login_sentence = self._get_login_sentence(challenge_arg)
+
+            login_sentence = self._get_login_sentence()
             self.talk_sentence(login_sentence)
             await self.writer.drain()
             data = await self.reader.read(64)
