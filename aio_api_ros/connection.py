@@ -160,6 +160,8 @@ class ApiRosConnection:
         while True:
 
             data = await self.reader.read(length)
+            if data == b'':
+                break
             if parse:
                 try:
 
