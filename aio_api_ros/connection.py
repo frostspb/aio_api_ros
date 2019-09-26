@@ -10,6 +10,7 @@ from .parser import parse_sentence
 
 ERROR_TAG = '!trap'
 DEFAULT_READ_DATA_LEN = 4096
+LOGIN_DATA_LEN = 128
 
 
 class ApiRosConnection:
@@ -199,7 +200,7 @@ class ApiRosConnection:
             login_sentence = self._get_login_sentence()
             self.talk_sentence(login_sentence)
             await self.writer.drain()
-            data = await self.reader.read(64)
+            data = await self.reader.read(LOGIN_DATA_LEN)
 
             # login failed
             if ERROR_TAG in data.decode():
