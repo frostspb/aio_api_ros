@@ -197,9 +197,6 @@ class ApiRosConnection:
         :return:
         """
         try:
-            self.talk_word(r'/login')
-            # await self.writer.drain()
-
             login_sentence = self._get_login_sentence()
             self.talk_sentence(login_sentence)
             # await self.writer.drain()
