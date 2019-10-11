@@ -9,6 +9,7 @@ from .unpacker import SentenceUnpacker
 from .parser import parse_sentence
 
 ERROR_TAG = '!trap'
+FATAL_ERROR_TAG = '!fatal'
 DEFAULT_READ_DATA_LEN = 4096
 LOGIN_DATA_LEN = 128
 
@@ -196,16 +197,16 @@ class ApiRosConnection:
         :return:
         """
         try:
-            self.talk_word(r'/login')
-            await self.writer.drain()
-
             login_sentence = self._get_login_sentence()
             self.talk_sentence(login_sentence)
-            await self.writer.drain()
+            # await self.writer.drain()
             data = await self.reader.read(LOGIN_DATA_LEN)
 
             # login failed
             if ERROR_TAG in data.decode():
+                raise LoginFailed(self._get_err_message(data))
+
+            if FATAL_ERROR_TAG in data.decode():
                 raise LoginFailed(self._get_err_message(data))
 
             return data
