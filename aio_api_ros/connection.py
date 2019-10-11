@@ -197,11 +197,11 @@ class ApiRosConnection:
         """
         try:
             self.talk_word(r'/login')
-            await self.writer.drain()
+            # await self.writer.drain()
 
             login_sentence = self._get_login_sentence()
             self.talk_sentence(login_sentence)
-            await self.writer.drain()
+            # await self.writer.drain()
             data = await self.reader.read(LOGIN_DATA_LEN)
 
             # login failed
