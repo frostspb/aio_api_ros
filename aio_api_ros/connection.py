@@ -9,6 +9,7 @@ from .unpacker import SentenceUnpacker
 from .parser import parse_sentence
 
 ERROR_TAG = '!trap'
+FATAL_ERROR_TAG = '!fatal'
 DEFAULT_READ_DATA_LEN = 4096
 LOGIN_DATA_LEN = 128
 
@@ -206,6 +207,9 @@ class ApiRosConnection:
 
             # login failed
             if ERROR_TAG in data.decode():
+                raise LoginFailed(self._get_err_message(data))
+
+            if FATAL_ERROR_TAG in data.decode():
                 raise LoginFailed(self._get_err_message(data))
 
             return data
