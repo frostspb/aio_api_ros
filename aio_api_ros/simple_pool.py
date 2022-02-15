@@ -5,7 +5,7 @@ from aio_api_ros.connection import ApiRosConnection
 
 class ApiRosSimplePool:
     def __init__(self, mk_ip: str, mk_port: int, mk_user: str, mk_psw: str,
-                 max_size: int, loop=None):
+                 max_size: int, loop=None, ssl=False):
         self.ip = mk_ip
         self.port = mk_port
         self.user = mk_user
@@ -17,6 +17,7 @@ class ApiRosSimplePool:
             self._loop = loop
         conns = [self.create_connection_object() for _ in range(max_size)]
         self._pool = conns
+        self._ssl = ssl
 
     def __await__(self):
         for connection in self._pool:
@@ -30,7 +31,8 @@ class ApiRosSimplePool:
             mk_psw=self.password,
             mk_ip=self.ip,
             mk_port=self.port,
-            loop=self._loop
+            loop=self._loop,
+            ssl=self._ssl
         )
 
     @property
