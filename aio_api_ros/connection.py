@@ -2,7 +2,7 @@ import asyncio
 import hashlib
 import binascii
 import uuid
-
+import ssl
 from .errors import LoginFailed
 from .errors import UnpackValueError
 from .unpacker import SentenceUnpacker
@@ -19,7 +19,7 @@ class ApiRosConnection:
     Connection to Mikrotik api
     """
     def __init__(self, mk_ip: str, mk_port: int, mk_user: str, mk_psw: str,
-                 loop=None):
+                 loop=None, ssl=False):
         if not all([mk_ip, mk_port, mk_user, mk_psw]):
             raise RuntimeError('Wrong connection params!')
         self.ip = mk_ip
@@ -31,6 +31,7 @@ class ApiRosConnection:
         self._loop = loop
         self._uuid = uuid.uuid1()
         self.used = False
+        self._ssl = self.ssl() if ssl else None
 
     def __del__(self):
         self.close()
@@ -38,9 +39,18 @@ class ApiRosConnection:
     def __repr__(self):
         return 'Connection to %s:%s id=%s' % (self.ip, self.port, self.uuid)
 
+    def ssl(self):
+        '''
+        ssl context construction
+        '''
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.set_ciphers("ADH:ALL:@SECLEVEL=0")
+
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(
-            self.ip, self.port, loop=self._loop
+            self.ip, self.port, loop=self._loop, ssl=self._ssl
         )
 
     @property
